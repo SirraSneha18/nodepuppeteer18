@@ -1,9 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const puppeteer = require("puppeteer");
+const fs = require("fs");
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 app.get("/screenshot", async (req, res) => {
   try {
@@ -25,10 +26,22 @@ app.get("/screenshot", async (req, res) => {
     const page = await browser.newPage();
     await page.goto(targetUrl, { waitUntil: "networkidle0" });
 
-    const screenshot = await page.screenshot({ encoding: "base64" });
+    // Save the screenshot to a file
+    const screenshotPath = "screenshot.png";
+    await page.screenshot({ path: screenshotPath });
 
     await browser.close();
-    res.send(`<img src="data:image/png;base64,${screenshot}" />`);
+
+    // Send the screenshot file as a response
+    res.sendFile(screenshotPath, { root: __dirname }, (err) => {
+      if (err) {
+        console.error("Error sending file:", err);
+        res.status(500).json({ error: "Failed to send screenshot" });
+      } else {
+        console.log("Screenshot successfully sent.");
+      }
+    });
+
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: error.message });
