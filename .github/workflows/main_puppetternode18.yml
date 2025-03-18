@@ -31,7 +31,9 @@ jobs:
             libxshmfence1
 
       - name: Set Puppeteer environment variables
-        run: echo "PUPPETEER_SKIP_DOWNLOAD=false" >> $GITHUB_ENV
+        run: |
+          echo "PUPPETEER_SKIP_DOWNLOAD=false" >> $GITHUB_ENV
+          echo "PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable" >> $GITHUB_ENV
 
       - name: Install dependencies, build, and test
         run: |
@@ -63,7 +65,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
